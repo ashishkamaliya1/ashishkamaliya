@@ -47,6 +47,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method.']);
 }
 ?>
-
-
-images/profile.jpg aa and banne ama background ma image che tya portfolioi-img add karo and left side 

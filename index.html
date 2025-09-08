@@ -647,7 +647,12 @@
             </div>
             <div class="col-md-8 col-xl-9 order-0 order-md-1">
               <h2 class="mb-3 text-5 text-white text-uppercase text-center text-md-start">Send us a note</h2>
-              <form id="contact-form" class="form-dark" action="" method="post">
+              <form id="contact-form" class="form-dark" name="contact" method="post" data-netlify="true"
+                netlify-honeypot="bot-field">
+                <input type="hidden" name="form-name" value="contact">
+                <p class="d-none">
+                  <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
+                </p>
                 <div class="row g-4">
                   <div class="col-xl-6">
                     <input name="name" type="text" class="form-control" required="" placeholder="Name">
@@ -755,34 +760,39 @@
   <script>
     document.getElementById('contact-form').addEventListener('submit', function (e) {
       e.preventDefault();
-
       const submitBtn = document.getElementById('submit-btn');
       const messageDiv = document.getElementById('form-message');
-      const formData = new FormData(this);
+      const form = this;
 
-      // Disable submit button and show loading
+      const encode = (data) => Object.keys(data)
+        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+        .join('&');
+
+      const formPayload = {
+        'form-name': form.getAttribute('name') || 'contact',
+        'name': form.querySelector('input[name="name"]').value,
+        'email': form.querySelector('input[name="email"]').value,
+        'form-message': form.querySelector('textarea[name="form-message"]').value,
+        'bot-field': form.querySelector('input[name="bot-field"]') ? form.querySelector('input[name="bot-field"]').value : ''
+      };
+
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...';
       messageDiv.innerHTML = '';
 
-      fetch('send_mail.php', {
+      fetch('/', {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: encode(formPayload)
       })
-        .then(response => response.json())
-        .then(data => {
-          if (data.status === 'success') {
-            messageDiv.innerHTML = '<div class="alert alert-success">' + data.message + '</div>';
-            document.getElementById('contact-form').reset();
-          } else {
-            messageDiv.innerHTML = '<div class="alert alert-danger">' + data.message + '</div>';
-          }
+        .then(() => {
+          messageDiv.innerHTML = '<div class="alert alert-success">Thank you! Your message has been sent successfully.</div>';
+          form.reset();
         })
-        .catch(error => {
+        .catch(() => {
           messageDiv.innerHTML = '<div class="alert alert-danger">Sorry, there was an error sending your message. Please try again later.</div>';
         })
         .finally(() => {
-          // Re-enable submit button
           submitBtn.disabled = false;
           submitBtn.innerHTML = 'Send Message';
         });
