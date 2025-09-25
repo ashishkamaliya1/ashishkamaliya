@@ -1,0 +1,25 @@
+{
+  "name": "ashishkamaliya",
+  "version": "1.0.0",
+  "description": "- Ensure `sitemap.xml` is submitted in Google Search Console.\r - Keep canonical set to `https://ashishcode.netlify.app/`.\r - Add `_redirects` on Netlify to enforce HTTPS and primary host.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashishkamaliya1/ashishkamaliya.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ashishkamaliya1/ashishkamaliya/issues"
+  },
+  "homepage": "https://github.com/ashishkamaliya1/ashishkamaliya#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.6"
+  }
+}

@@ -718,12 +718,7 @@
             </div>
             <div class="col-md-8 col-xl-9 order-0 order-md-1">
               <h2 class="mb-3 text-5 text-white text-uppercase text-center text-md-start">Send us a note</h2>
-              <form id="contact-form" class="form-dark" name="contact" method="post" data-netlify="true"
-                netlify-honeypot="bot-field">
-                <input type="hidden" name="form-name" value="contact">
-                <p class="d-none">
-                  <label>Don’t fill this out if you're human: <input name="bot-field" /></label>
-                </p>
+              <form id="contact-form" class="form-dark" name="contact" method="post">
                 <div class="row g-4">
                   <div class="col-xl-6">
                     <input name="name" type="text" class="form-control" required="" placeholder="Name">
@@ -732,7 +727,7 @@
                     <input name="email" type="email" class="form-control" required="" placeholder="Email">
                   </div>
                   <div class="col">
-                    <textarea name="form-message" class="form-control" rows="5" required=""
+                    <textarea name="message" class="form-control" rows="5" required=""
                       placeholder="Tell us more about your needs........"></textarea>
                   </div>
                 </div>
@@ -829,44 +824,43 @@
 
   <!-- Contact Form AJAX Script -->
   <script>
-    document.getElementById('contact-form').addEventListener('submit', function (e) {
+    document.getElementById('contact-form').addEventListener('submit', async function (e) {
       e.preventDefault();
       const submitBtn = document.getElementById('submit-btn');
       const messageDiv = document.getElementById('form-message');
       const form = this;
 
-      const encode = (data) => Object.keys(data)
-        .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-        .join('&');
-
-      const formPayload = {
-        'form-name': form.getAttribute('name') || 'contact',
-        'name': form.querySelector('input[name="name"]').value,
-        'email': form.querySelector('input[name="email"]').value,
-        'form-message': form.querySelector('textarea[name="form-message"]').value,
-        'bot-field': form.querySelector('input[name="bot-field"]') ? form.querySelector('input[name="bot-field"]').value : ''
+      const data = {
+        name: form.querySelector('input[name="name"]').value,
+        email: form.querySelector('input[name="email"]').value,
+        message: form.querySelector('textarea[name="message"]').value,
       };
 
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Sending...';
       messageDiv.innerHTML = '';
 
-      fetch('/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode(formPayload)
-      })
-        .then(() => {
-          messageDiv.innerHTML = '<div class="alert alert-success">Thank you! Your message has been sent successfully.</div>';
-          form.reset();
-        })
-        .catch(() => {
-          messageDiv.innerHTML = '<div class="alert alert-danger">Sorry, there was an error sending your message. Please try again later.</div>';
-        })
-        .finally(() => {
-          submitBtn.disabled = false;
-          submitBtn.innerHTML = 'Send Message';
+      try {
+        const res = await fetch('/.netlify/functions/send-mail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
         });
+
+        const result = await res.json();
+
+        if (result.success) {
+          messageDiv.innerHTML = '<div class="alert alert-success">✅ Thank you! Your message has been sent successfully.</div>';
+          form.reset();
+        } else {
+          messageDiv.innerHTML = '<div class="alert alert-danger">❌ Error: ' + result.error + '</div>';
+        }
+      } catch (error) {
+        messageDiv.innerHTML = '<div class="alert alert-danger">❌ Sorry, there was an error sending your message. Please try again later.</div>';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Send Message';
+      }
     });
   </script>
 
