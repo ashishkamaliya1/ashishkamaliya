@@ -32,7 +32,7 @@ exports.handler = async (event, context) => {
         }
 
         // SMTP Transporter (Gmail example)
-        let transporter = nodemailer.createTransporter({
+        let transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
                 user: process.env.SMTP_USER,   // Netlify ENV variable
